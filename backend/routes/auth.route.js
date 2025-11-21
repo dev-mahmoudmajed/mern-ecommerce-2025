@@ -30,16 +30,18 @@ authRouter.post("/login",async(req,res,next)=>{
     if(!user) return res.status(401).json("Wrong credentials!")
     //decrypt the password
     const hashedPassword = CryptoJS.AES.decrypt(user.password,PASS_SEC)
+    //password saved in DB
     const originalPassword = hashedPassword.toString(CryptoJS.enc.Utf8)
     //compare the password
     if (originalPassword !== req.body.password) return res.status(401).json("Wrong credentials!")
     
-    //generate a token
+    //------ generate a token
     const accessToken = jwt.sign({
       id: user._id,
       isAdmin: user.isAdmin,
     }, JWT_SECRET, {expiresIn: JWT_EXPIRES_IN})
-      //return the user without the password
+    //----------------------------------------------
+    //return the user without the password
     const {password:_, ...others} = user._doc;
     //return the user
     res.status(200).json({...others,accessToken})
